@@ -2,10 +2,8 @@ package com.example.etl.config
 
 import java.sql.Timestamp
 
-// Using Option for fields that can be null in the database or are specific to certain modes
 case class JobConfig(
-    job_id: String,
-    job_name: String,
+    job_name: String, // Changed from job_id
     job_description: Option[String],
     is_active: String, // 'Y' or 'N'
 
@@ -36,11 +34,11 @@ case class JobConfig(
     scd2_current_flag_column: Option[String],
 
     partitioning_columns: Option[String],
-    job_priority: Option[Int],
+    job_priority: Option[Int], // Represented as BigDecimal from Oracle, converted in ConfigLoader
     max_retries: Option[Int],
     retry_backoff_ms: Option[Long],
     sla_threshold_minutes: Option[Int],
-    dependency_job_ids: Option[String],
+    dependency_job_ids: Option[String], // Now refers to job_names
 
     audit_level: String,
     reconciliation_enabled: String, // 'Y' or 'N'
@@ -53,6 +51,8 @@ case class JobConfig(
     notification_emails_failure: Option[String],
     notification_verbosity: Option[String],
 
+    job_properties: Option[String], // New field for generic JSON properties
+
     log_masking_columns: Option[String],
     execution_authorization_flag: String, // 'Y' or 'N'
     manual_trigger_only: String, // 'Y' or 'N'
@@ -61,5 +61,5 @@ case class JobConfig(
     created_ts: Timestamp,
     updated_by: String,
     updated_ts: Timestamp,
-    config_version: Int
+    config_version: Int // Represented as BigDecimal from Oracle, converted in ConfigLoader
 )

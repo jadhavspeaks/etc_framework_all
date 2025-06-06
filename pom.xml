@@ -39,6 +39,13 @@
             <version>${spark.version}</version>
         </dependency>
 
+        <!-- Spark Hive for Hive table support -->
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-hive_${scala.binary.version}</artifactId>
+            <version>${spark.version}</version>
+        </dependency>
+
         <!-- Spark Kafka (for future streaming source) -->
         <dependency>
             <groupId>org.apache.spark</groupId>
