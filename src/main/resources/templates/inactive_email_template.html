@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ETL Job Skipped (Inactive): {{JOB_NAME}}</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; }
+  .container { background-color: #ffffff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+  .header { background-color: #FFC107; color: #333333; padding: 10px; text-align: center; border-radius: 5px 5px 0 0; } /* Amber/Yellow for inactive */
+  .content { padding: 20px; line-height: 1.6; }
+  .footer { text-align: center; margin-top: 20px; font-size: 0.9em; color: #777; }
+  table { width: 100%; border-collapse: collapse; margin-top:15px; }
+  th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+  th { background-color: #f0f0f0; }
+  .reason-message { color: #856404; background-color: #fff3cd; padding: 10px; border: 1px solid #ffeeba; border-radius: 4px; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>ETL Job Skipped (Inactive)</h2>
+    </div>
+    <div class="content">
+      <p>Dear User,</p>
+      <p>The ETL job <strong>{{JOB_NAME}}</strong> was skipped because it is marked as inactive in the configuration.</p>
+      <h3>Job Details:</h3>
+      <table>
+        <tr><th>Job Name</th><td>{{JOB_NAME}}</td></tr>
+        <tr><th>Attempted Run Datetime</th><td>{{RUN_DATETIME}}</td></tr>
+        <tr><th>Status</th><td style="color: #856404;"><strong>{{STATUS}}</strong></td></tr>
+      </table>
+      <div class="reason-message">
+        <strong>Reason for Skipping:</strong> {{SKIP_REASON}}
+      </div>
+      <p>Please update the job configuration if this job needs to be activated.</p>
+      <p>Thank you,<br>ETL Framework Notification System</p>
+    </div>
+    <div class="footer">
+      This is an automated notification. Please do not reply.
+    </div>
+  </div>
+</body>
+</html>

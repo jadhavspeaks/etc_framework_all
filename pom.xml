@@ -15,6 +15,8 @@
         <spark.version>2.4.8</spark.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <jakarta.mail.version>2.1.2</jakarta.mail.version> <!-- Property for Jakarta Mail version -->
+        <angus.mail.version>2.0.2</angus.mail.version> <!-- Property for Angus Mail version -->
     </properties>
 
     <dependencies>
@@ -76,6 +78,19 @@
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
             <version>1.7.25</version>
+        </dependency>
+
+        <!-- Jakarta Mail API -->
+        <dependency>
+            <groupId>jakarta.mail</groupId>
+            <artifactId>jakarta.mail-api</artifactId>
+            <version>${jakarta.mail.version}</version>
+        </dependency>
+        <!-- Eclipse Angus Mail (Implementation of Jakarta Mail) -->
+        <dependency>
+            <groupId>org.eclipse.angus</groupId>
+            <artifactId>angus-mail</artifactId>
+            <version>${angus.mail.version}</version>
         </dependency>
 
     </dependencies>

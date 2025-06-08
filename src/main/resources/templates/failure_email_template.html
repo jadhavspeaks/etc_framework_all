@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>ETL Job FAILED: {{JOB_NAME}}</title>
+<style>
+  body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; }
+  .container { background-color: #ffffff; padding: 20px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+  .header { background-color: #D32F2F; color: white; padding: 10px; text-align: center; border-radius: 5px 5px 0 0; } /* Red for failure */
+  .content { padding: 20px; line-height: 1.6; }
+  .footer { text-align: center; margin-top: 20px; font-size: 0.9em; color: #777; }
+  table { width: 100%; border-collapse: collapse; margin-top:15px; }
+  th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+  th { background-color: #f0f0f0; }
+  .error-message { color: #D32F2F; font-weight: bold; white-space: pre-wrap; background-color: #ffeeee; padding: 10px; border: 1px solid #D32F2F; border-radius: 4px; margin-top: 10px; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>ETL Job FAILED</h2>
+    </div>
+    <div class="content">
+      <p>Dear User,</p>
+      <p>The ETL job <strong>{{JOB_NAME}}</strong> has FAILED.</p>
+      <h3>Job Execution Summary:</h3>
+      <table>
+        <tr><th>Job Name</th><td>{{JOB_NAME}}</td></tr>
+        <tr><th>Run Datetime</th><td>{{RUN_DATETIME}}</td></tr>
+        <tr><th>Status</th><td style="color: red;"><strong>{{STATUS}}</strong></td></tr>
+        <tr><th>Duration</th><td>{{DURATION_MS}} ms</td></tr>
+        <tr><th>Records Read</th><td>{{RECORDS_READ}}</td></tr>
+        <tr><th>Records Written</th><td>{{RECORDS_WRITTEN}}</td></tr>
+        <tr><th>Spark Application ID</th><td>{{SPARK_APP_ID}}</td></tr>
+        <tr><th>DQ Report Status</th><td>{{DQ_REPORT_STATUS}}</td></tr>
+        <tr><th>Reconciliation Status</th><td>{{RECON_REPORT_STATUS}}</td></tr>
+      </table>
+      <h3>Error Details:</h3>
+      <div class="error-message">
+        <strong>Error Type:</strong> {{ERROR_TYPE}}
+        <br>
+        <strong>Message:</strong>
+        <pre>{{ERROR_MESSAGE_SHORT}}</pre>
+      </div>
+      <p>For full details, please check the audit logs (JobRunDetailsTable in Hive) for the full stack trace and Spark UI (if available using Spark App ID).</p>
+      <p>Thank you,<br>ETL Framework Notification System</p>
+    </div>
+    <div class="footer">
+      This is an automated notification. Please do not reply.
+    </div>
+  </div>
+</body>
+</html>
