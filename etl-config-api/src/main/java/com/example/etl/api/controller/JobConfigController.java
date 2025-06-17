@@ -9,14 +9,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import javax.validation.Valid;
+import com.example.etl.api.dto.JobConfigAuditLogDTO; // Added import
+import org.springframework.data.domain.Sort; // Added import for Sort.Direction
 import java.net.URI;
-import java.util.List; // For validation response
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/jobconfigs")
@@ -30,6 +34,7 @@ public class JobConfigController {
     }
 
     @GetMapping
+    @PreAuthorize("hasAnyRole('VIEWER', 'EDITOR', 'ADMIN')")
     public ResponseEntity<Page<JobConfigSummaryDTO>> getAllJobs(
             @RequestParam(required = false) String jobNameFilter,
             @RequestParam(required = false) String sourceTypeFilter,
@@ -41,17 +46,20 @@ public class JobConfigController {
     }
 
     @GetMapping("/{jobName}")
+    @PreAuthorize("hasAnyRole('VIEWER', 'EDITOR', 'ADMIN')")
     public ResponseEntity<JobConfigDetailDTO> getJobByName(@PathVariable String jobName) {
         JobConfigDetailDTO jobConfig = jobConfigService.findJobByName(jobName);
         return ResponseEntity.ok(jobConfig);
     }
 
     @PostMapping
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMIN')")
     public ResponseEntity<JobConfigDetailDTO> createJobConfig(
-            @Valid @RequestBody JobConfigCreateDTO createDTO) {
-        // TODO: Get username from Spring Security context once implemented
-        String createdByUsername = "api-user"; // Placeholder
-        JobConfigDetailDTO createdJob = jobConfigService.createJob(createDTO, createdByUsername);
+            @Valid @RequestBody JobConfigCreateDTO createDTO,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        String username = (userDetails != null) ? userDetails.getUsername() : "anonymousApiUser";
+        JobConfigDetailDTO createdJob = jobConfigService.createJob(createDTO, username);
 
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
             .path("/{jobName}")
@@ -62,35 +70,47 @@ public class JobConfigController {
     }
 
     @PutMapping("/{jobName}")
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMIN')")
     public ResponseEntity<JobConfigDetailDTO> updateJobConfig(
             @PathVariable String jobName,
-            @Valid @RequestBody JobConfigUpdateDTO updateDTO) {
-        // TODO: Get username from Spring Security context
-        String updatedByUsername = "api-user"; // Placeholder
-        JobConfigDetailDTO updatedJob = jobConfigService.updateJob(jobName, updateDTO, updatedByUsername);
+            @Valid @RequestBody JobConfigUpdateDTO updateDTO,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        String username = (userDetails != null) ? userDetails.getUsername() : "anonymousApiUser";
+        JobConfigDetailDTO updatedJob = jobConfigService.updateJob(jobName, updateDTO, username);
         return ResponseEntity.ok(updatedJob);
     }
 
     @DeleteMapping("/{jobName}")
-    public ResponseEntity<Void> deleteJobConfig(@PathVariable String jobName) {
-        // TODO: Possibly get username for audit logging of delete operation if needed
-        jobConfigService.deleteJob(jobName);
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> deleteJobConfig(
+            @PathVariable String jobName,
+            @AuthenticationPrincipal UserDetails userDetails) { // Added UserDetails
+
+        String username = (userDetails != null) ? userDetails.getUsername() : "anonymousApiUser";
+        jobConfigService.deleteJob(jobName, username); // Pass username to service
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping("/validate") // New endpoint
+    @PostMapping("/validate")
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMIN')")
     public ResponseEntity<List<String>> validateJobConfig(
             @Valid @RequestBody JobConfigCreateDTO dtoToValidate) {
-        // @Valid already performs bean validations on dtoToValidate.
-        // If those fail, Spring will return a 400 Bad Request before this method is called.
-        // This service call performs additional cross-field and business logic validations.
         List<String> validationMessages = jobConfigService.validateConfigurationPayload(dtoToValidate);
         if (validationMessages.isEmpty()) {
-            return ResponseEntity.ok(List.of("Configuration payload is valid.")); // Or just an empty list / success object
+            return ResponseEntity.ok(List.of("Configuration payload is valid."));
         } else {
-            // Consider returning HttpStatus.BAD_REQUEST if we want to signal errors this way too,
-            // but 200 OK with error messages in body is also a common pattern for validation endpoints.
             return ResponseEntity.ok(validationMessages);
         }
+    }
+
+    // Add this method to the existing class
+    @GetMapping("/{jobName}/auditlogs")
+    @PreAuthorize("hasAnyRole('EDITOR', 'ADMIN')") // Or appropriate role
+    public ResponseEntity<Page<JobConfigAuditLogDTO>> getJobAuditLogs(
+            @PathVariable String jobName,
+            @PageableDefault(size = 10, sort = "changeTimestamp", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<JobConfigAuditLogDTO> auditLogs = jobConfigService.findAuditLogsByJobName(jobName, pageable);
+        return ResponseEntity.ok(auditLogs);
     }
 }

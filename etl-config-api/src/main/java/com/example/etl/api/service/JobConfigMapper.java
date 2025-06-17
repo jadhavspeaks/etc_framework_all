@@ -192,4 +192,17 @@ public class JobConfigMapper {
             entity.setConfigVersion(1); // Should not happen if created correctly
         }
     }
+
+    // Add this method to the existing class
+    public JobConfigAuditLogDTO toJobConfigAuditLogDTO(JobConfigAuditLogEntity entity) {
+        if (entity == null) return null;
+        return new JobConfigAuditLogDTO(
+            entity.getLogId(),
+            entity.getJobName(),
+            entity.getChangeType(),
+            entity.getChangedByUser(),
+            entity.getChangeTimestamp(),
+            entity.getChangedFieldsDetails()
+        );
+    }
 }
